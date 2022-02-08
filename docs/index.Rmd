@@ -1,18 +1,20 @@
 ---
 title: Data Analysis with R Programming - How a Bikeshare Company Navigates Its Speedy Success
 author: "Ryan Nguyen"
-output: html_document
-fig_caption: yes
-theme: cerulean
-toc: yes
-toc_depth: 3
-toc_float: yes
+output: 
+    prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 ## Scenario:
 
 Imagine being a junior data analyst in the marketing team at Divvy bike share
-company in Chicago and working on a project to increase the company's profit by increasing the numbers of riders with annual membership. Your team must know the differences between casual riders and annual members to come up and put forward the marketing strategies for the executives' approval. 
+company in Chicago and working on a project to optimize the company's profit by increasing the numbers of riders with annual membership. Your team must know the differences between casual riders and annual members to put forward the marketing strategies for the executives' approval. 
 
 
 ## Clear Statement of Business Task (ASK)
@@ -27,8 +29,399 @@ Rides data is collected and publicly published monthly by Divvy themselves to le
 * Organized: The observation's attributes are well-organized and include: Ride ID, user type, start time, end time, bike type, start station name, start station id, end station name, end station id, start longitude, start latitude, end latitude, end longitude, 
 * Cited: Data is provided under the company data [License Agreement](https://ride.divvybikes.com/data-license-agreement)
 * Comprehensive: The data set is large enough and has relevant attributes to conduct meaningful analysis.
-* Current: They are updated every month and stored on their server. This data set includes data from September 2020 to August 2021.
+* Current: They are updated every month and stored on their server. This data set includes data from Jan 2021 to December 2021.
+
+
+## Documentation of cleaning and manipulation of data (PROCESS)
+
+### Collect data
+
+Load R packages
+
+```{r results='hide'}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(skimr)
+```
+
+
+Import monthly data into R
+
+```{r results='hide'}
+trip_202108 <- read.csv("202108_tripdata.csv")
+trip_202107 <- read.csv("202107_tripdata.csv")
+trip_202106 <- read_csv("202106_tripdata.csv")
+trip_202105 <- read_csv("202105_tripdata.csv")
+trip_202104 <- read_csv("202104_tripdata.csv")
+trip_202103 <- read_csv("202103_tripdata.csv")
+trip_202102 <- read_csv("202102_tripdata.csv")
+trip_202101 <- read_csv("202101_tripdata.csv")
+trip_202109 <- read_csv("202109_tripdata.csv")
+trip_202110 <- read_csv("202110_tripdata.csv")
+trip_202111 <- read_csv("202111_tripdata.csv")
+trip_202112 <- read_csv("202112_tripdata.csv")
+```
+
+### Wrangling and Combine Data
+
+Make sure column names, and data type of each column match perfectly before 
+files are combined
+
+```{r}
+str(trip_202101)
+```
+
+
+Convert "started_at", "ended_at" to date/time so they can bind correctly
+```{r results='hide'}
+trip_202101$started_at <- ymd_hms(trip_202101$started_at)
+trip_202101$ended_at <- ymd_hms(trip_202101$ended_at)
+
+trip_202102$started_at <- ymd_hms(trip_202102$started_at)
+trip_202102$ended_at <- ymd_hms(trip_202102$ended_at)
+
+trip_202103$started_at <- ymd_hms(trip_202103$started_at)
+trip_202103$ended_at <- ymd_hms(trip_202103$ended_at)
+
+trip_202104$started_at <- ymd_hms(trip_202104$started_at)
+trip_202104$ended_at <- ymd_hms(trip_202104$ended_at)
+
+trip_202105$started_at <- ymd_hms(trip_202105$started_at)
+trip_202105$ended_at <- ymd_hms(trip_202105$ended_at)
+
+trip_202106$started_at <- ymd_hms(trip_202106$started_at)
+trip_202106$ended_at <- ymd_hms(trip_202106$ended_at)
+
+trip_202107$started_at <- ymd_hms(trip_202107$started_at)
+trip_202107$ended_at <- ymd_hms(trip_202107$ended_at)
+
+trip_202108$started_at <- ymd_hms(trip_202108$started_at)
+trip_202108$ended_at <- ymd_hms(trip_202108$ended_at)
+
+trip_202109$started_at <- ymd_hms(trip_202109$started_at)
+trip_202109$ended_at <- ymd_hms(trip_202109$ended_at)
+
+trip_202110$started_at <- ymd_hms(trip_202110$started_at)
+trip_202110$ended_at <- ymd_hms(trip_202110$ended_at)
+
+trip_202111$started_at <- ymd_hms(trip_202111$started_at)
+trip_202111$ended_at <- ymd_hms(trip_202111$ended_at)
+
+trip_202112$started_at <- ymd_hms(trip_202112$started_at)
+trip_202112$ended_at <- ymd_hms(trip_202112$ended_at)
+```
+
+
+We perform data transformation on "start_station_id" to proper 'character'/string
+```{r results='hide'}
+trip_202101 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202102 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202103 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202104 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202105 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202106 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202107 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202108 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202109 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202110 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202111 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+trip_202112 %>%
+  mutate(rideable_type = as.character(rideable_type), start_station_id = as.character(start_station_id))
+```
+
+Combine them into a single data frame
+
+```{r}
+all_trip <- rbind(trip_202108, trip_202107, trip_202106, trip_202105, 
+                  trip_202104, trip_202103, trip_202102,trip_202101, 
+                  trip_202112, trip_202111, trip_202110, trip_202109)
+```
+
+
+Rename some of the columns for clarity:
+
+```{r}
+all_trip <- rename(all_trip, bike_type = rideable_type, id  = ride_id, 
+                     member_type = member_casual, start_at = started_at, 
+                     end_at = ended_at)
+```
+
+
+Remove columns having little relevance to our analysis such as coordinates. We would keep the "station_name" column in lieu of "station_id" to keep the data frame clean and reduce redundancy.
+
+```{r}
+all_trip <- all_trip %>%
+  select(-c(start_lat, start_lng, end_lat, end_lng, start_station_id, 
+            end_station_id))
+```
+
+
+### Data cleaning & Manipulation
+
+View the statistical summary of the data frame
+```{r}
+summary(all_trip)
+```
+
+
+Check the data completeness, unique values, and any N/As
+```{r}
+skim(all_trip)
+```
+
+
+There are a few observations/problems we would address:
+
+* As of December 2020, Divvy introduced “classic bike” to their current fleet including docked bike and e-bike, resulting in classic bike data is not be available before December 2020. 
+
+* Date columns (started_at, ended_at) are too general so we have to add
+granularity to the data for more opportunities for analyzing. We then extract these attributes below:
+
+  + trip_duration
+  + month
+  + date
+  + start_hour
+  + day_of_week
+
+
+```{r}
+all_trip <- all_trip %>%
+  mutate(trip_duration = round(difftime(end_at, start_at, units = "mins"),2)) %>%
+  mutate(month = month(start_at, label = TRUE, abbr = TRUE)) %>%
+  mutate(date = date(start_at)) %>%
+  mutate(start_hour = hour(start_at)) %>%
+  mutate(weekday = wday(start_at, label = TRUE, week_start = 1))
+```
+
+
+Divvy claims that there are several hundreds data points having
+trip duration less than 60 seconds or negative due to their system testing. 
+Also, trips whose duration is more than 14400 mins (864000 seconds) are deemed 
+to have the bike stolen. These observations will be filtered out to ensure data integrity.
+
+```{r}
+all_trip <- all_trip %>%
+  filter(trip_duration >= 1, trip_duration <14400)
+```
+
+
+Divvy system errors resulted in several data points with missing values in "start_station_name", "end_station_name", "start_station_id", "end_station_id", which we must remove.
+
+Trips started or ended in either of the stations below would also be dropped as they are rides to deploy or collect bikes from administration stations:
+
+* DIVVY CASSETTE REPAIR MOBILE STATION
+* HUBBARD ST BIKE CHECKING
+* WATSON TESTING DIVVY
+
+```{r}
+all_trip <- all_trip %>%
+  filter(start_station_name != "DIVVY CASSETTE REPAIR MOBILE STATION", 
+         start_station_name != "HUBBARD ST BIKE CHECKING", 
+         start_station_name != "WATSON TESTING DIVVY",
+         start_station_name != "",
+         end_station_name != "DIVVY CASSETTE REPAIR MOBILE STATION", 
+         end_station_name != "HUBBARD ST BIKE CHECKING", 
+         end_station_name != "WATSON TESTING DIVVY",
+         end_station_name != "")
+```
+
+
+Again, checking for data integrity before moving on to mining the data
+
+```{r}
+skim(all_trip)
+```
+
+
+## Descriptive Analysis
+
+### Average trip time for each member type
+
+```{r}
+aggregate(all_trip$trip_duration ~ all_trip$member_type, FUN = mean)
+aggregate(all_trip$trip_duration ~ all_trip$member_type, FUN = median)
+aggregate(all_trip$trip_duration ~ all_trip$member_type, FUN = max)
+aggregate(all_trip$trip_duration ~ all_trip$member_type, FUN = min)
+```
+
+### Average ride duration in weekdays for members vs casual users:
+
+```{r}
+aggregate(all_trip$trip_duration ~ all_trip$member_type + all_trip$weekday, 
+          FUN = mean)
+```
+
+### Number of rides by member types in weekdays plus trip duration average
+
+```{r}
+all_trip %>%
+  group_by(member_type, weekday) %>%
+  summarise(number_of_rides = n(), average_duration = mean(trip_duration)) %>%
+  arrange(member_type, weekday)
+```
+
+
+### Identify top 5 stations to begin bike rides (Members and Casuals)
+
+```{r}
+
+all_trip %>%
+  filter(member_type == "member") %>%
+  select(start_station_name, member_type) %>%
+  count(start_station_name, sort = TRUE) %>%
+  top_n(5)
+
+all_trip %>%
+  filter(member_type == 'casual') %>%
+  group_by(start_station_name) %>%
+  summarise(total_ride = n()) %>%
+  arrange(desc(total_ride)) %>%
+  top_n(5)
+```
+
+  
+## Visualization
+
+### Total weekdays trips among members and casuals
+
+```{r}
+all_trip %>%
+  group_by(member_type, weekday) %>%
+  summarise(total_trip = n()) %>%
+  arrange(member_type, weekday) %>%
+  ggplot(aes(x = weekday, y = total_trip, fill = member_type)) + 
+  geom_col(position = "dodge")
+```
+
+
+### Weekdays trip duration by members and casuals
+
+```{r}
+all_trip %>%
+  group_by(member_type, weekday) %>%
+  summarise(average_duration = mean(trip_duration)) %>%
+  arrange(member_type, weekday) %>%
+  ggplot(aes(x = weekday, y = average_duration, fill = member_type)) + geom_col(position = "dodge")
+```
+
+
+### Rides in 2021 to identify seasonality or any trends.
+
+```{r}
+all_trip %>%
+  group_by(date, member_type) %>%
+  summarise(total_trip = n())%>%
+  ggplot(aes(x = date, y = total_trip, fill = member_type)) + 
+  geom_area()
+```
+
+
+### Display trip duration average difference between members and casuals:
+
+```{r}
+ggplot(data = all_trip, aes(x = member_type, 
+                              y = as.numeric(trip_duration),
+                              fill = member_type)) +
+  geom_boxplot(outlier.shape = NA) +
+  coord_cartesian(ylim =  c(0, 80)) +
+  stat_summary(fun=mean, geom="point", color="blue") +
+  annotate(geom = "text", x = 1.25, y = 29, label = "Ave = 32.68 mins") +
+  annotate(geom = "text", x = 2.30, y = 15, label = "Ave = 14.32 mins")
+```
+
+
+## Rides in times of day
+
+```{R}
+all_trip %>%
+  group_by(member_type, start_hour) %>%
+  summarise(total_rides = n()) %>%
+  ggplot(aes(start_hour, total_rides, fill = member_type)) + 
+  geom_col(position = "dodge")
+```
+
+### Top Stations for members to start their trips:
+```{r}
+all_trip %>%
+  filter(member_type == 'member') %>%
+  group_by(start_station_name) %>%
+  summarise(trip_count = n()) %>%
+  arrange(desc(trip_count)) %>%
+  top_n(5) %>%
+  ggplot(aes(x=trip_count, y=reorder(start_station_name, trip_count))) + 
+  geom_col(fill = "#33cccc") + 
+  labs(title = "Top Start Stations by Members", x="Trips", y=" ") +
+  scale_x_continuous(labels = scales::comma) +
+  theme_minimal()
+```
+
+
+### Top Stations for casual riders to begin their trips:
+```{r}
+all_trip %>%
+  filter(member_type == 'casual') %>%
+  group_by(start_station_name) %>%
+  summarise(trip_count = n()) %>%
+  arrange(desc(trip_count)) %>%
+  top_n(5) %>%
+  ggplot(aes(x=trip_count, y=reorder(start_station_name, trip_count))) + 
+  geom_col(fill = "sky blue") + 
+  labs(title = "Top Start Stations by Casuals", x="Trips", y=" ") +
+  scale_x_continuous(labels = scales::comma) +
+  theme_minimal()
+```
+
+### Member types and their bike preferences
+```{r}
+all_trip %>%
+  group_by(member_type, bike_type) %>%
+  summarise(trip_count = n()) %>%
+  ggplot(aes(member_type,trip_count, fill = member_type)) +
+  geom_col(position = "dodge") +  
+  labs(title = "Member Type & Bike Preferences", x=" ", y = "Trips") +
+  theme(legend.position = "none") +
+  scale_y_continuous(labels = scales::comma) +
+  facet_wrap(~bike_type)
+```
 
 
 
-View this analysis on my Tableau Dashboard [here](https://public.tableau.com/views/Book1_16409358660030/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link)
+## Key Findings:
+
+* Casual riders on average spend more time with their bike on each trip compared with members.
+* There are surges in the number of trips taken among members during rush hours in the morning and in the afternoon.
+* Casuals' trips are much more concentrated in the weekends whereas members' rides are evenly distributed daily regardless of weekdays.
+* Classic bikes remain the most popular Divvy bike type, with almost 2 millions members' trips and approximately 1.25 millions trips by casual riders.
+* Some of the busiest stations for casual riders are listed: 
+  + Streeter Dr & Grand Ave
+  + Millennium Park
+  + Michigan Ave. & Oak St
+  
+## Recommendations:
+
+* Increase price for trips longer than 20 minutes to persuade casual riders switch to memberships.
+* Add promotions on Friday, Saturday, and Sunday for riders with annual memberships so they can spend more time with their bike. This might result in less bikes available for casual riders in those days.
+* Run marketing campaigns targeting areas concentrated with casual riders - vicinity around the top stations they most likely begin their trips.
+  
+
+## Export cleaned data into csv for further analysis in Tableau
+
+```{r}
+all_trip %>%
+  select(-c(weekday, month, end_at, start_hour, date)) %>%
+  write.csv(file = "all_trip.csv")
+```
+
+View this analysis visualization on my Tableau Dashboard [here](https://public.tableau.com/views/Book1_16409358660030/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link)

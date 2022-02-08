@@ -38,3 +38,16 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 R_markdown.Rproj
+docs/202101_tripdata.csv
+docs/202102_tripdata.csv
+docs/202103_tripdata.csv
+docs/202104_tripdata.csv
+docs/202105_tripdata.csv
+docs/202106_tripdata.csv
+docs/202107_tripdata.csv
+docs/202108_tripdata.csv
+docs/202109_tripdata.csv
+docs/202110_tripdata.csv
+docs/202111_tripdata.csv
+docs/202112_tripdata.csv
+docs/all_trip.csv
